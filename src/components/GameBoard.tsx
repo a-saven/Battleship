@@ -59,7 +59,7 @@ export const GameBoard: React.FC = () => {
           </div>
         ))}
       </div>
-      <div className="ship-list">
+      {/* <div className="ship-list">
         {shipTypes.map((ship) => (
           <div key={ship.name} className="ship-item">
             <div className="ship-image-container">
@@ -67,7 +67,7 @@ export const GameBoard: React.FC = () => {
             </div>
           </div>
         ))}
-      </div>
+      </div> */}
     </div>
   );
 };
