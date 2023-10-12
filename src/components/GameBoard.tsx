@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useGameState } from "./useGameState";
 import { CellState } from "./Types";
 import "./GameBoard.css";
@@ -13,6 +13,35 @@ const shipTypes = [
 
 export const GameBoard: React.FC = () => {
   const { board, fire, hits, misses, sunkShips, resetGame, ships, sunkShipIds } = useGameState();
+  const [focusedRow, setFocusedRow] = useState(0);
+  const [focusedCol, setFocusedCol] = useState(0);
+  // tabIndex
+  useEffect(() => {
+    (
+      document.querySelector(
+        `.board-row:nth-child(${focusedRow + 1}) .board-cell:nth-child(${focusedCol + 1})`
+      ) as HTMLButtonElement
+    )?.focus();
+  }, [focusedRow, focusedCol]);
+
+  const handleKeyPress = (event: React.KeyboardEvent, i: number, j: number) => {
+    switch (event.key) {
+      case "ArrowUp":
+        if (i > 0) setFocusedRow(i - 1);
+        break;
+      case "ArrowDown":
+        if (i < board.length - 1) setFocusedRow(i + 1);
+        break;
+      case "ArrowLeft":
+        if (j > 0) setFocusedCol(j - 1);
+        break;
+      case "ArrowRight":
+        if (j < board[i].length - 1) setFocusedCol(j + 1);
+        break;
+      default:
+        break;
+    }
+  };
 
   const score = ((hits / (hits + misses || 1)) * 100).toFixed();
 
@@ -41,6 +70,8 @@ export const GameBoard: React.FC = () => {
             {row.map((cell, j) => (
               <button
                 key={j}
+                tabIndex={i === focusedRow && j === focusedCol ? 0 : -1}
+                onKeyDown={(e) => handleKeyPress(e, i, j)}
                 onClick={() => fire(i, j)}
                 className={`
                    board-cell 
@@ -59,7 +90,7 @@ export const GameBoard: React.FC = () => {
           </div>
         ))}
       </div>
-      {/* <div className="ship-list">
+      <div className="ship-list">
         {shipTypes.map((ship) => (
           <div key={ship.name} className="ship-item">
             <div className="ship-image-container">
@@ -67,7 +98,7 @@ export const GameBoard: React.FC = () => {
             </div>
           </div>
         ))}
-      </div> */}
+      </div>
     </div>
   );
 };
