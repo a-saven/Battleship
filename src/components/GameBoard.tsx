@@ -1,31 +1,20 @@
-import React, { useState, useEffect } from "react";
-//import { useGameState } from "./useGameState";
+import React, { useState, useEffect, useRef } from "react";
 import { useGameState } from "./useOptimalState";
-import { CellState } from "./BoardTypes";
+import { VariableSizeGrid as Grid } from "react-window";
+import BoardCell from "./BoardCell";
+import StatusBar from "./StatusBar";
 import "./GameBoard.css";
-
-const shipTypes = [
-  { name: "carrier", size: 5 },
-  { name: "battleship", size: 4 },
-  { name: "cruiser", size: 3 },
-  { name: "destroyer", size: 2 },
-  { name: "submarine", size: 3 },
-];
 
 export const GameBoard: React.FC = () => {
   const { board, fire, hits, misses, sunkShips, resetGame, ships, sunkShipIds } = useGameState();
   const [focusedRow, setFocusedRow] = useState(0);
   const [focusedCol, setFocusedCol] = useState(0);
 
-  console.log("board", board);
-  console.log("ships", ships);
-  // tabIndex
   useEffect(() => {
-    (
-      document.querySelector(
-        `.board-row:nth-child(${focusedRow + 1}) .board-cell:nth-child(${focusedCol + 1})`
-      ) as HTMLButtonElement
-    )?.focus();
+    const cell = document.querySelector(
+      `.board-row:nth-child(${focusedRow + 1}) .board-cell:nth-child(${focusedCol + 1})`
+    ) as HTMLButtonElement;
+    cell?.focus();
   }, [focusedRow, focusedCol]);
 
   const handleKeyPress = (event: React.KeyboardEvent, i: number, j: number) => {
@@ -47,62 +36,37 @@ export const GameBoard: React.FC = () => {
     }
   };
 
+  const Cell = ({ columnIndex, rowIndex, style }: any) => {
+    const cell = board[rowIndex][columnIndex];
+    return (
+      <div style={style}>
+        <BoardCell
+          cell={cell.state}
+          onClick={() => fire(rowIndex, columnIndex)}
+          onKeyDown={(e) => handleKeyPress(e, rowIndex, columnIndex)}
+          tabIndex={rowIndex === focusedRow && columnIndex === focusedCol ? 0 : -1}
+        />
+      </div>
+    );
+  };
+
   const score = ((hits / (hits + misses || 1)) * 100).toFixed();
+
+  const fixedSize = 40; // Fixed size for each cell
 
   return (
     <div className="board-container">
-      <div className="status-bar">
-        <span>
-          Ships Sunk: {sunkShips} / {ships.length}
-        </span>
-        {sunkShips === ships.length && (
-          <div className="victory">
-            <span>Victory!</span>
-            <button className="play-again-button" onClick={resetGame}>
-              Play Again
-            </button>
-          </div>
-        )}
-        <div>
-          <span>Hit Rating: {score}%</span>
-        </div>
-      </div>
-
-      <div className="board">
-        {board.map((row, i) => (
-          <div key={i} className="board-row">
-            {row.map((cell, j) => (
-              <button
-                key={j}
-                tabIndex={i === focusedRow && j === focusedCol ? 0 : -1}
-                onKeyDown={(e) => handleKeyPress(e, i, j)}
-                onClick={() => fire(i, j)}
-                className={`
-                   board-cell 
-                   ${cell.state === CellState.Hit ? "hit" : ""} 
-                   ${cell.state === CellState.Miss ? "miss" : ""}
-                   ${
-                     cell.shipId !== null && sunkShipIds.includes(cell.shipId) && cell.state === CellState.Hit
-                       ? "sunk"
-                       : ""
-                   }
-                 `}
-              >
-                {cell.state === CellState.Hit ? "✗" : cell.state === CellState.Miss ? "✕" : ""}
-              </button>
-            ))}
-          </div>
-        ))}
-      </div>
-      <div className="ship-list">
-        {shipTypes.map((ship) => (
-          <div key={ship.name} className="ship-item">
-            <div className="ship-image-container">
-              <img src={`/assets/${ship.name}.png`} alt={ship.name} title={`${ship.name} (Size: ${ship.size})`} />
-            </div>
-          </div>
-        ))}
-      </div>
+      <StatusBar sunkShips={sunkShips} totalShips={ships.length} score={score} resetGame={resetGame} />
+      <Grid
+        columnCount={1000} // Set to a high value for 'infinite' scrolling
+        rowCount={1000} // Set to a high value for 'infinite' scrolling
+        columnWidth={() => fixedSize}
+        rowHeight={() => fixedSize}
+        width={fixedSize * 10} // Only show 10 columns
+        height={fixedSize * 10} // Only show 10 rows
+      >
+        {Cell}
+      </Grid>
     </div>
   );
 };
