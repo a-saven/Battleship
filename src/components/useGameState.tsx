@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { CellState, Cell, Ship } from "./Types";
+import { useEffect, useState } from "react";
+import { CellState, Cell, Ship } from "./BoardTypes";
 
 const initialBoardSize = 10;
 

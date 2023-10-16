@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { useGameState } from "./useGameState";
-import { CellState } from "./Types";
+//import { useGameState } from "./useGameState";
+import { useGameState } from "./useOptimalState";
+import { CellState } from "./BoardTypes";
 import "./GameBoard.css";
 
 const shipTypes = [
@@ -15,6 +16,9 @@ export const GameBoard: React.FC = () => {
   const { board, fire, hits, misses, sunkShips, resetGame, ships, sunkShipIds } = useGameState();
   const [focusedRow, setFocusedRow] = useState(0);
   const [focusedCol, setFocusedCol] = useState(0);
+
+  console.log("board", board);
+  console.log("ships", ships);
   // tabIndex
   useEffect(() => {
     (

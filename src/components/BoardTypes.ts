@@ -18,3 +18,14 @@ export interface Ship {
   x: number;
   y: number;
 }
+
+export interface State {
+  board: Cell[][];
+  ships: Ship[];
+  hits: number;
+  misses: number;
+  sunkShips: number;
+  sunkShipIds: number[];
+}
+
+export type Action = { type: "RESET_GAME" } | { type: "FIRE"; payload: { x: number; y: number } };
