@@ -1,6 +1,6 @@
 import { Cell, Ship, CellState } from "./BoardTypes";
 
-export const initialBoardSize = 10;
+export const initialBoardSize = 100;
 
 // Generates an empty board
 export const generateInitialBoard = (): Cell[][] => {
